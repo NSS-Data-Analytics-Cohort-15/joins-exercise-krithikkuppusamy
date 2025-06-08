@@ -40,9 +40,16 @@ GROUP BY s.film_title,s.mpaa_rating,db.company_name;
 
 --ANS "The Lion King","G","Walt Disney ",763455561
 
---4. Write a query that returns, for each distributor in the distributors table, the distributor name and the number of movies associated with that distributor in the movies 
---table. Your result set should include all of the distributors, whether or not they have any movies in the movies table.
+--4. Write a query that returns, for each distributor in the distributors table, the distributor name and the number of movies associated with that distributor in the movies table. Your result set should include all of the distributors, whether or not they have any movies in the movies table.
+SELECT distributors.company_name
+       , COUNT(specs.film_title) AS total_movies
+FROM distributors
+      LEFT JOIN specs   
+	  ON distributors.distributor_id=specs.domestic_distributor_id
+GROUP BY distributors.company_name
+ORDER BY total_movies DESC;	  
 
+--5. Write a query that returns the five distributors with the highest average movie budget.
 
 
 	 
