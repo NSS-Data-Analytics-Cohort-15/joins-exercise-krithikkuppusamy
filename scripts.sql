@@ -41,9 +41,13 @@ JOIN revenue
 WHERE  
 	s.mpaa_rating ILIKE 'G'	
 GROUP BY s.film_title, s.mpaa_rating, db.company_name
+ORDER BY highest_gross DESC  
 LIMIT 1;	
 
---ANS "The Lion King","G","Walt Disney ",763455561
+/*
+"film_title"	"mpaa_rating"	"company_name"	"highest_gross"
+"Toy Story 4"	"G"	"Walt Disney "	1073394593
+*/
 
 --4. Write a query that returns, for each distributor in the distributors table, the distributor name and the number of movies associated with that distributor in the movies table. Your result set should include all of the distributors, whether or not they have any movies in the movies table.
 SELECT distributors.company_name
@@ -79,34 +83,41 @@ LIMIT 5
 
 -- 6. How many movies in the dataset are distributed by a company which is not headquartered in California? Which of these movies has the highest imdb rating?
 
-SELECT company_name,COUNT(film_title) AS total_movies,MAX(imdb_rating) AS highest_imdb_rating
+SELECT 	film_title,company_name
+	   ,COUNT(film_title) AS total_movies
+	   ,MAX(imdb_rating) AS highest_imdb_rating
 FROM  distributors
 JOIN  specs
-  ON  distributors.distributor_id=specs.domestic_distributor_id
+	ON  distributors.distributor_id=specs.domestic_distributor_id
 JOIN  rating
-USING (movie_id)
+	USING (movie_id)
 WHERE headquarters NOT ILIKE('%CA')
-GROUP BY company_name
+GROUP BY film_title,company_name
 ORDER BY highest_imdb_rating DESC
---LIMIT 1
+LIMIT 1
 
  
 /*ANS
-"company_name"	"total_movies"	"highest_imdb_rating"
-"Vestron Pictures"	1	7.0
-"IFC Films"	1	6.5
+"film_title"	"company_name"	"total_movies"	"highest_imdb_rating"
+"Dirty Dancing"	"Vestron Pictures"	1	7.0
 */
 
 --7. Which have a higher average rating, movies which are over two hours long or movies which are under two hours?
-SELECT 'movies < 2 hours' AS movie_time, AVG(imdb_rating)
+SELECT 'movies < 2 hours' AS movie_time, ROUND(AVG (imdb_rating),2) AS avg_rating
 FROM specs
 JOIN rating
 	USING(movie_id)
 WHERE  length_in_min <120
---UNION
-SELECT 'movies > 2 hours' AS movie_time ,AVG(imdb_rating)
+UNION
+SELECT 'movies > 2 hours' AS movie_time, ROUND(AVG (imdb_rating),2) AS avg_rating
 FROM specs
 JOIN rating
 	USING(movie_id)
 WHERE  length_in_min >120
---GROUP BY film_title
+ORDER BY avg_rating DESC
+LIMIT 1
+
+/*ANS
+"movie_time"	"avg_rating"
+"movies > 2 hours"	7.26
+*/
